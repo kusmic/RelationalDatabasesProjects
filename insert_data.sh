@@ -39,32 +39,34 @@ do
   then
     ((skip_headers--))
   else
+    # People say the hook before error is due to timeout, so using optimized code from rgoldsmith33703 to test
+    COM1="$($PSQL "INSERT INTO teams(name) VALUES ('$WIN') ON CONFLICT (name) DO NOTHING; INSERT INTO teams(name) VALUES ('$OPP') ON CONFLICT (name) DO NOTHING; INSERT INTO games(year, round, winner_id, opponent_id, winner_goals, opponent_goals) VALUES($YR, '$RND', (SELECT team_id FROM teams WHERE name = '$WIN'), (SELECT team_id FROM teams WHERE name = '$OPP'), $WGL, $OGL);")"
     #echo $YR #$RND $WIN $OPP $WGL $OGL 
     # get team id for winner
-    WIN_ID=$($PSQL "SELECT team_id FROM teams WHERE name='$WIN'")
-    if [[ -z $WIN_ID ]]
-    then
-      TEAM_INSERT=$($PSQL "INSERT INTO teams (name) VALUES ('$WIN')")
-      echo -e "Inserted $WIN: $TEAM_INSERT"
-      WIN_ID=$($PSQL "SELECT team_id FROM teams WHERE name='$WIN'")
-    fi
+    #WIN_ID=$($PSQL "SELECT team_id FROM teams WHERE name='$WIN'")
+    #if [[ -z $WIN_ID ]]
+    #then
+    #  TEAM_INSERT=$($PSQL "INSERT INTO teams (name) VALUES ('$WIN')")
+    #  echo -e "Inserted $WIN: $TEAM_INSERT"
+    #  WIN_ID=$($PSQL "SELECT team_id FROM teams WHERE name='$WIN'")
+    #fi
 
     # get opponent_id
-    OPP_ID=$($PSQL "SELECT team_id FROM teams WHERE name='$OPP'")
-    if [[ -z $OPP_ID ]]
-    then
-      TEAM_INSERT=$($PSQL "INSERT INTO teams (name) VALUES ('$OPP')")
-      echo -e "Inserted $OPP: $TEAM_INSERT"
-      OPP_ID=$($PSQL "SELECT team_id FROM teams WHERE name='$OPP'")
-    fi
+    #OPP_ID=$($PSQL "SELECT team_id FROM teams WHERE name='$OPP'")
+    #if [[ -z $OPP_ID ]]
+    #then
+    #  TEAM_INSERT=$($PSQL "INSERT INTO teams (name) VALUES ('$OPP')")
+    #  echo -e "Inserted $OPP: $TEAM_INSERT"
+    #  OPP_ID=$($PSQL "SELECT team_id FROM teams WHERE name='$OPP'")
+    #fi
     # check games table if entry exist, if not add it
-    CHECK_GAME_ID_RES=$($PSQL "SELECT game_id FROM games WHERE winner_id=$WIN_ID AND opponent_id=$OPP_ID")
-    if [[ -z $CHECK_GAME_ID_RES ]]
-    then
-      # insert it YR RND WIN OPP WGL OGL
-      INSERT_GAME_RES=$($PSQL "INSERT INTO games (year,winner_id,opponent_id,winner_goals,opponent_goals,round) VALUES ($YR,$WIN_ID,$OPP_ID,$WGL,$OGL,'$RND')")
-      echo -e "Inserted game: $YR $RND, $WIN-$OPP ($WGL-$OGL): $INSERT_GAME_RES"
-    fi
+    #CHECK_GAME_ID_RES=$($PSQL "SELECT game_id FROM games WHERE winner_id=$WIN_ID AND opponent_id=$OPP_ID")
+    #if [[ -z $CHECK_GAME_ID_RES ]]
+    #then
+    #  # insert it YR RND WIN OPP WGL OGL
+    #  INSERT_GAME_RES=$($PSQL "INSERT INTO games (year,winner_id,opponent_id,winner_goals,opponent_goals,round) VALUES ($YR,$WIN_ID,$OPP_ID,$WGL,$OGL,'$RND')")
+    #  echo -e "Inserted game: $YR $RND, $WIN-$OPP ($WGL-$OGL): $INSERT_GAME_RES"
+    #fi
   fi
 done < $CSVFILE
 
